@@ -1,3 +1,7 @@
 # Flappy-Bird-Python
 
-Flappy Bird Game in Python Laguage with Pygame library
+Flappy Bird copy in Python language with PyGame Library
+
+By : NIxON42
+
+Created in the middle of corona pandemic 2020

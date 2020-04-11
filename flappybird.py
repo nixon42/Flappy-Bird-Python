@@ -1,3 +1,11 @@
+"""
+FLAPPY BIRD COPY IN PYTHON LAGUAGE WITH PYGAME LIBRARY
+
+BY : NIxON42
+
+CREATED IN THE MIDDLE CORONA PANDEMIC
+"""
+
 #   import all module we need
 import pygame
 import os
@@ -296,128 +304,216 @@ class ground:
     Class for the Ground
     """
     def __init__(self, win):
-        self.img = IMG_GROUND_TRANSFORM
-        self.x = 0
-        self.y = 580
-        self.imgx = self.img
-        self.xx = self.img.get_width() - 3
-        self.yx = self.y
-        self.win = win
+        """
+        Instance inisialization
+        :param win: work window
+        """
+        self.img = IMG_GROUND_TRANSFORM  # Submit the transformed ground image
+        self.x = 0  # The starting x position
+        self.y = 580  # The y position
+        self.imgx = self.img  # Submit the second image
+        self.xx = self.img.get_width() - 3  # Set the second x as the width of image 1
+        self.yx = self.y  # set the y of image 2
+        self.win = win  # Submit the window
 
     def move(self):
-        self.x -= 1
-        self.xx -= 1
+        """
+        Method to move the ground
+        :return: none
+        """
+        #   move the ground
+        self.x -= 1  # move the ground image 1
+        self.xx -= 1  # move the grounf image 2
 
+        #   Move the image to backward if they over the window
         if self.xx == -1:
             self.x = self.img.get_width() - 3
         elif self.x == -1:
             self.xx = self.img.get_width() - 3
 
     def draw(self):
-        self.win.blit(self.img, (self.x, self.y))
-        self.win.blit(self.imgx, (self.xx, self.yx))
+        """
+        Method to draw the ground image in the window
+        :return: none
+        """
+        #   Draw the image
+        self.win.blit(self.img, (self.x, self.y))  # Draw the image 1
+        self.win.blit(self.imgx, (self.xx, self.yx))  # Draw the image 2
 
 
 def draw_window(win, player, bg, obs, gnd, score):
+    """
+    Funcion to draw everything to the window
+    :param win: The work Window
+    :param player: The Bird
+    :param bg: The Baground
+    :param obs: The pipes
+    :param gnd: The Ground
+    :param score: Score
+    :return: none
+    """
+    #   Frist draw the baground
     bg.draw()
+
+    #   Second draw all the pipes
     for pipe in obs:
         pipe.draw()
 
+    #   Third draw ground
     gnd.draw()
 
+    #   Then the score
     sc = SCORE.render(str(score), 4, (255, 255, 255))
     win.blit(sc, (int(WIDTH / 2 - sc.get_width() / 2), 20))
 
+    #   And the Bird
     player.draw(win)
+
+    #   Update the display
     pygame.display.update()
 
 
 def lose(win):
+    """
+    Funcion if lose
+    :param win: The working Window
+    :return: none
+    """
+    #   Set the word
     game = FONT.render("GAME", 1, (255, 255, 255))
     over = FONT.render("OVER", 1, (255, 0, 0))
     des = END.render("Press Space To Play Again", 1, (255, 255, 255))
 
+    #   Center of window
     center = WIDTH / 2
 
+    #   Draw it in window
     win.blit(game, (int(center - game.get_width() / 2), 200))
     win.blit(over, (int(center - over.get_width() / 2), 330))
     win.blit(des, (int(center - des.get_width() / 2), 500))
 
+    #   Update the display
     pygame.display.update()
 
 
 def main():
+    """
+    Main Funcion for the game
+    :return: none
+    """
+    #   Initialization of pygame
     pygame.init()
-    timer = pygame.time.Clock()
+
+    #   Set the pygame clock
+    clock = pygame.time.Clock()
+
+    #   Localise work window
     win = WINDOW
 
+    #   Cheat Last thick so will immediately generate in firt run
     last_thick = PIPE_INTERVAL * -1
 
+    #   Create Array of object pipe
     pipes = []
+
+    #   Localise the pipe interval
     pipe_inter = PIPE_INTERVAL
 
+    #   Set up variable
     fps = 40
     score = 0
 
+    #   localise the hard variable
     hard = HARD_OVER_TIME
 
-    bg = backgroud(win)
-    mybird = bird(100, 200)
-    gnd = ground(win)
+    #   Create object
+    bg = backgroud(win)  # Create baground object
+    mybird = bird(100, 200)  # Create bird object
+    gnd = ground(win)  # Create ground object
 
+    #   Run variable
     run = True
     live = True
     while run:
+        # check if hard is true
         if hard:
+            # increase the speed over time
             fps += 0.01
-            timer.tick(int(fps))
+            clock.tick(int(fps))
+            # if the speed is over 120 make it 120
             if fps >= 120:
                 fps = 120
+        # If not use standart speed
         else:
-            timer.tick(fps)
+            clock.tick(fps)
 
+        # Get the Event
         for event in pygame.event.get():
+            # If close then quit
             if event.type == pygame.QUIT:
                 run = False
+            # If key up press, jump
             elif event.type == pygame.KEYDOWN and event.key == pygame.K_UP:
                 mybird.jump()
+            # If the player died, then press space. restart the game
             elif event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE and not live:
+                # Remove all pipe
                 for pipe in pipes:
                     pipes.remove(pipe)
 
+                # Set up default value
                 fps = 40
                 pipe_inter = PIPE_INTERVAL
+
+                # Call main funcion again
                 main()
 
+        # Get how long the program run
         thick = pygame.time.get_ticks()
+
+        # Check if over or equal to pipe interval
         if thick - last_thick >= pipe_inter:
+            # Record the thick
             last_thick = thick
+
+            # Add new pipe object
             pipes.append(obstacle(WIDTH, win))
+
+            # If hard, decrease the interval overtime
             if hard:
                 pipe_inter -= 500
+                # If the interval is bellow 5000, make it 5000
                 if pipe_inter <= 5000:
                     pipe_inter = 5000
 
+        # Move all pipe object in the window
         for pipe in pipes:
             pipe.move()
 
+            # If bird pass the pipe add score
             if pipe.x == mybird.x:
                 score += 1
 
+            # Remove pipe that over the window
             if pipe.x <= -100:
                 pipes.remove(pipe)
 
+        # If still live
         if live:
-            bg.move()
-            gnd.move()
-            mybird.move()
-            draw_window(win, mybird, bg, pipes, gnd, score)
+            bg.move()  # move the baground
+            gnd.move()  # move the ground
+            mybird.move()  # move the bird
+            draw_window(win, mybird, bg, pipes, gnd, score)  # draw all object
+        # If die
         else:
-            lose(win)
+            lose(win)  # draw loser
 
+        # Check for collide
         for pipe in pipes:
+            # If collide
             if pipe.collide(mybird, gnd):
-                live = False
+                live = False  # kill the bird
 
 
+#   Call the main funcion
 main()
